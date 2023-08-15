@@ -1,0 +1,32 @@
+{
+  "name": "circuits",
+  "version": "0.0.0",
+  "license": "MIT",
+  "scripts": {
+    "circom:test": "ts-mocha test/* --timeout 0"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.5",
+    "@types/elliptic": "^6.4.14",
+    "@types/mocha": "^10.0.1",
+    "chai": "^4.3.7",
+    "dts-gen": "^0.6.1",
+    "eslint": "^7.32.0",
+    "eslint-config-custom": "*",
+    "mocha": "^10.2.0",
+    "ts-mocha": "^10.0.0",
+    "ts-node": "^10.9.1",
+    "tsconfig": "*",
+    "typescript": "^4.5.2"
+  },
+  "dependencies": {
+    "circomlib-ml": "1.4.4",
+    "@personaelabs/spartan-ecdsa": "^2.1.4",
+    "@tensorflow/tfjs": "^4.10.0",
+    "@tensorflow/tfjs-node": "^4.10.0",
+    "@zk-kit/incremental-merkle-tree": "^1.1.0",
+    "circom_tester": "^0.0.19",
+    "circomlib": "^2.0.5",
+    "elliptic": "^6.5.4"
+  }
+}
