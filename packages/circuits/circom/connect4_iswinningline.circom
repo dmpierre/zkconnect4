@@ -33,10 +33,13 @@ template IsWinningLine(player) {
 template CheckColumns(player) {
     // check if there is a winning line within the board columns
     signal input board[42];
-    signal output out[21];
+    signal output out;
     var i;
     var j;
     component checkCols[21];
+    component num = Bits2Num(21); // will be different from 0 if there is a winning line
+    component isequal = IsEqual();
+
     for (i = 0; i < 7; i++) {
         for (j = i; j <= i + 14; j += 7) {
             checkCols[j] = IsWinningLine(player);
@@ -44,20 +47,26 @@ template CheckColumns(player) {
             checkCols[j].in[1] <== board[j + 7];
             checkCols[j].in[2] <== board[j + 14];
             checkCols[j].in[3] <== board[j + 21];
-            out[j] <== checkCols[j].out;
+            num.in[j] <== checkCols[j].out;
         }
     }
+    isequal.in[0] <== num.out;
+    isequal.in[1] <== 0;
+    out <== 1 - isequal.out; // signal is 1 when there is a winning col, 0 else
 }
 
 template CheckRows(player) {
     // check if there is a winning line within the board rows
     signal input board[42];
-    signal output out[24];
+    signal output out;
     var i;
     var j;
     var k = 0;
     var idx;
     component checkRows[24];
+    component num = Bits2Num(24); // will be different from 0 if there is a winning line
+    component isequal = IsEqual();
+
     for (i = 0; i <= 35; i += 7) {
         for (j = 0; j < 4; j++) {
             idx = i + j - 3 * k;
@@ -66,8 +75,40 @@ template CheckRows(player) {
             checkRows[idx].in[1] <== board[i + j + 1];
             checkRows[idx].in[2] <== board[i + j + 2];
             checkRows[idx].in[3] <== board[i + j + 3]; 
-            out[idx] <== checkRows[idx].out;
+            num.in[idx] <== checkRows[idx].out;
         }
         k += 1;
     }
+    isequal.in[0] <== num.out;
+    isequal.in[1] <== 0;
+
+    out <== 1 - isequal.out; // signal is 1 when there is a winning row, 0 else
+}
+
+template CheckDiagonals(player) {
+    // check if there is a winning line within the board diagonals
+    signal input board[42];
+    signal output out;
+    var i;
+    var j;
+    var k = 0;
+    component checkDiags[12];
+    component num = Bits2Num(12); // will be different from 0 if there is a winning line
+    component isequal = IsEqual();
+
+    for (i = 3; i <= 17; i += 7) {
+        for (j = 0; j < 4; j++) {
+            checkDiags[k] = IsWinningLine(player);
+            checkDiags[k].in[0] <== board[i + j];
+            checkDiags[k].in[1] <== board[i + j + 6];
+            checkDiags[k].in[2] <== board[i + j + 12];
+            checkDiags[k].in[3] <== board[i + j + 18];
+            num.in[k] <== checkDiags[k].out;
+            k += 1;
+        }
+    }
+    
+    isequal.in[0] <== num.out;
+    isequal.in[1] <== 0;
+    out <== 1 - isequal.out; // signal is 1 when there is a winning diagonal, 0 else
 }

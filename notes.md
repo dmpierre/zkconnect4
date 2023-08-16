@@ -108,7 +108,7 @@ In the context of a recursive circuit, the public inputs that we will have will 
 
 ### 09/08
 
-Maybe need some commitment to the model (?)
+Need some commitment to the model (?)
 
 ## Resources 
 

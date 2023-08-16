@@ -3,6 +3,7 @@ pragma circom 2.1.2;
 include "connect4_model/model.circom";
 include "./connect4_isvalidboard.circom";
 include "./connect4_update.circom";
+include "./connect4_iswinningline.circom";
 include "../node_modules/circomlib/circuits/poseidon.circom";
 include "../node_modules/circomlib/circuits/mux2.circom";
 
@@ -75,11 +76,20 @@ template Connect4() {
                     belowLeafPlayer, pathElementsBelowLeafPlayer, pathIndicesBelowLeafPlayer,
                     updatedRootFromPlayerPlay, pathElementsUpdatedRootFromPlayer);
 
-    // 5. Check if there is a winning line
+    // 5. Check if there is a winning line for player 1
+    signal player1WinningRow <== CheckRows(1)(board[0][0]);
+    signal player1WinningColumn <== CheckColumns(1)(board[0][0]);
+    signal player1WinningDiag <== CheckDiagonals(1)(board[0][0]);
 
-    // 6. Output the correct root following whether it is the agent or the player's turn
+    // 6. Check if there is a winning line for player 2
+    signal player2WinningRow <== CheckRows(2)(board[0][0]);
+    signal player2WinningColumn <== CheckColumns(2)(board[0][0]);
+    signal player2WinningDiag <== CheckDiagonals(2)(board[0][0]);
+
+    // 7. Output the correct root following whether it is the agent or the player's turn
     signal agentBoardRoot <== turn * updatedRootFromAgentPlay;
     signal playerBoardRoot <==  (1 - turn) * updatedRootFromPlayerPlay;
 
+    // 8. Output whether there is a winner or not
     signal output step_out <==  agentBoardRoot + playerBoardRoot;
 }

@@ -22,7 +22,7 @@ describe("Test Connect4 circuit", () => {
         agent = new AgentNode(modelPath);
         await agent.loadModel();
     });
-    
+
     beforeEach("reset", async () => {
         connect4Circuit = await wasm(path.join(__dirname, 'circuits', 'test_connect4.circom'));
     });
@@ -59,6 +59,7 @@ describe("Test Connect4 circuit", () => {
             expect(wtns[1]).to.equal(board.boardTree.root)
         }
     })
+
     it("Should catch on invalid board proofs", async () => {
 
         // With folding, the root will be passed between each folding step
@@ -115,7 +116,7 @@ describe("Test Connect4 circuit", () => {
     it("Should catch on invalid row helper values", async () => {
         const board = new Board();
         board.play(41)
-        
+
         const agentMove = agent.getMove(board);
         assert(agentMove?.prediction != undefined);
 
