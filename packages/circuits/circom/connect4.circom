@@ -1,16 +1,20 @@
 pragma circom 2.1.2;
 
 include "connect4_model/model.circom";
+include "./connect4_isvalidboard.circom";
 include "./connect4_update.circom";
 include "../node_modules/circomlib/circuits/poseidon.circom";
 include "../node_modules/circomlib/circuits/mux2.circom";
 
 template Connect4() {
 
-    signal input step_in; // board root
+    signal input step_in; // board root, public
 
     signal input board[1][1][42];
-    signal input turn;
+    signal input pathElements[42][6];
+    signal input pathIndices[42][6];
+
+    signal input turn; // whose player's turn it is, public
 
     // inputs for model inference
     signal input dense_weights[42][50];
@@ -48,7 +52,10 @@ template Connect4() {
     signal input updatedRootFromPlayerPlay;
     signal input pathElementsUpdatedRootFromPlayer[6];
 
-    // 1. Model inference
+    // 1. Check board array <--> merkle tree
+    IsValidBoard()(board[0][0], step_in, pathElements, pathIndices);
+
+    // 2. Model inference
     signal agentColumn[1] <== Model()(board, dense_weights, dense_bias, 
                             dense_1_weights, dense_1_bias, dense_2_weights, 
                             dense_2_bias, dense_3_weights, dense_3_bias, 
@@ -56,21 +63,21 @@ template Connect4() {
 
     signal agentPlayedIndex <== agentColumn[0] + agentMoveRowHelper * 7;
     
-    // 2. Check the updated board from the agent's play
+    // 3. Check the updated board from the agent's play
     Connect4Update()(step_in, agentPlayedIndex, 2, 
                     pathElementsCurrentLeafAgent, pathIndicesCurrentLeafAgent, 
                     belowLeafAgent, pathElementsBelowLeafAgent, pathIndicesBelowLeafAgent,
                     updatedRootFromAgentPlay, pathElementsUpdatedRootFromAgent);
 
-    // 3. Check the updated board from the player's play
+    // 4. Check the updated board from the player's play
     Connect4Update()(step_in, playerPlayedIndex, 1, 
                     pathElementsCurrentLeafPlayer, pathIndicesCurrentLeafPlayer, 
                     belowLeafPlayer, pathElementsBelowLeafPlayer, pathIndicesBelowLeafPlayer,
                     updatedRootFromPlayerPlay, pathElementsUpdatedRootFromPlayer);
 
-    // 4. Check if there is a winning line
+    // 5. Check if there is a winning line
 
-    // 5. Output the correct root following whether it is the agent or the player's turn
+    // 6. Output the correct root following whether it is the agent or the player's turn
     signal agentBoardRoot <== turn * updatedRootFromAgentPlay;
     signal playerBoardRoot <==  (1 - turn) * updatedRootFromPlayerPlay;
 

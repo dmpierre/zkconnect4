@@ -4,12 +4,14 @@
   "license": "MIT",
   "devDependencies": {
     "@types/mocha": "^10.0.1",
+    "@types/node": "^20.5.0",
     "chai": "^4.3.7",
     "mocha": "^10.2.0",
     "ts-mocha": "^10.0.0",
     "ts-node": "^10.9.1"
   },
   "dependencies": {
+    "@tensorflow/tfjs-node": "^4.10.0",
     "@zk-kit/incremental-merkle-tree": "^1.1.0",
     "circomlibjs": "0.0.8"
   }

@@ -14,7 +14,7 @@ describe('Test lib', () => {
                 if (idx == undefined) {
                     throw new Error("Invalid move")
                 }
-                board.play(idx)
+                board.play(idx.prediction)
                 board.printBoard();
             } catch (error) { 
                 console.log(error)

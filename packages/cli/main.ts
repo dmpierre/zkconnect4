@@ -1,4 +1,4 @@
-import { Board, askMove, formatProof } from "lib/utils/utils";
+import { Board, askMove, formatProof } from "../lib/utils/utils";
 import fs from "fs";
 import { art, loadConnect4 } from "./conf";
 import assert from "assert";

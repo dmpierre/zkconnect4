@@ -36,6 +36,7 @@ export class AgentNode {
                 
                 const pred = board.isValidMove(prediction + 7 * i, 2)
                 return {
+                    column: prediction,
                     prediction: prediction + 7 * i,
                     rowHelper: i
                 }

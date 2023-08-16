@@ -1,8 +1,8 @@
-import { AgentNode } from "lib/utils/agent-node";
+import { AgentNode } from "../lib/utils/agent-node";
 import path from "path";
 //@ts-expect-error
 import { wasm } from 'circom_tester';
-import { loadJSON } from "lib/utils/utils";
+import { loadJSON } from "../lib/utils/utils";
 
 export const CONF = {
     modelPath: path.join(__dirname, '..', 'circuits', 'connect4_tfjs', "model.json"),
