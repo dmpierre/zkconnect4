@@ -110,6 +110,24 @@ In the context of a recursive circuit, the public inputs that we will have will 
 
 Need some commitment to the model (?)
 
+### 10/08
+
+I think that I have the full circuit flow.
+
+Player proves that the current board content is correct. 
+
+He proves that the candidate tree for the updated board is corrrect. In doing so, he also proves that this candidate updated board has the same root of some root that he claims to be the result of this update.
+
+We check the model inference.
+
+We check that the claimed update is correct.
+
+We check whether there is a winner.
+
+There are two distinct things. 
+1. Checking that the tree is updated correctly (i.e. the board)
+2. Checking whether there is a winner or not
+
 ## Resources 
 
 - [project page](https://www.notion.so/0xparc/ZK-Connect-4-183fb50f88ab41ac95fdfba89dd30c17)

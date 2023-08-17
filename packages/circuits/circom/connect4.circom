@@ -9,13 +9,19 @@ include "../node_modules/circomlib/circuits/mux2.circom";
 
 template Connect4() {
 
-    signal input step_in; // board root, public
+    signal input step_in[3]; // board root, turn \in {0, 1} (expected), player won \in {0, 1, 2}
+
+    step_in[2] === 0;
 
     signal input board[1][1][42];
+    signal input updatedBoard[1][1][42];
+
     signal input pathElements[42][6];
     signal input pathIndices[42][6];
+    signal input updatedBoardPathElements[42][6];
+    signal input updatedBoardPathIndices[42][6];
 
-    signal input turn; // whose player's turn it is, public
+    signal turn <== step_in[1];
 
     // inputs for model inference
     signal input dense_weights[42][50];
@@ -53,10 +59,20 @@ template Connect4() {
     signal input updatedRootFromPlayerPlay;
     signal input pathElementsUpdatedRootFromPlayer[6];
 
-    // 1. Check board array <--> merkle tree
-    IsValidBoard()(board[0][0], step_in, pathElements, pathIndices);
+    // 1. Check board array <--> merkle tree for both current and updated board
+    IsValidBoard()(board[0][0], step_in[0], pathElements, pathIndices);
 
-    // 2. Model inference
+    // 2. Calculate correct updated root following whether it is the agent or the player's turn
+    // This root will be in the output once we have checked that the update is correct.
+    signal agentBoardRoot <== turn * updatedRootFromAgentPlay;
+    signal playerBoardRoot <==  (1 - turn) * updatedRootFromPlayerPlay;
+    signal updatedRoot <== agentBoardRoot + playerBoardRoot;
+
+    // 3. Check updated board array <--> merkle tree
+    // Do this check using the proposed candidate root
+    IsValidBoard()(updatedBoard[0][0], updatedRoot, updatedBoardPathElements, updatedBoardPathIndices);
+
+    // 4. Model inference
     signal agentColumn[1] <== Model()(board, dense_weights, dense_bias, 
                             dense_1_weights, dense_1_bias, dense_2_weights, 
                             dense_2_bias, dense_3_weights, dense_3_bias, 
@@ -64,32 +80,40 @@ template Connect4() {
 
     signal agentPlayedIndex <== agentColumn[0] + agentMoveRowHelper * 7;
     
-    // 3. Check the updated board from the agent's play
-    Connect4Update()(step_in, agentPlayedIndex, 2, 
+    // 5. Check the updated board from the agent's play
+    Connect4Update()(step_in[0], agentPlayedIndex, 2, 
                     pathElementsCurrentLeafAgent, pathIndicesCurrentLeafAgent, 
                     belowLeafAgent, pathElementsBelowLeafAgent, pathIndicesBelowLeafAgent,
                     updatedRootFromAgentPlay, pathElementsUpdatedRootFromAgent);
 
-    // 4. Check the updated board from the player's play
-    Connect4Update()(step_in, playerPlayedIndex, 1, 
+    // 6. Check the updated board from the player's play
+    Connect4Update()(step_in[0], playerPlayedIndex, 1, 
                     pathElementsCurrentLeafPlayer, pathIndicesCurrentLeafPlayer, 
                     belowLeafPlayer, pathElementsBelowLeafPlayer, pathIndicesBelowLeafPlayer,
                     updatedRootFromPlayerPlay, pathElementsUpdatedRootFromPlayer);
 
-    // 5. Check if there is a winning line for player 1
-    signal player1WinningRow <== CheckRows(1)(board[0][0]);
-    signal player1WinningColumn <== CheckColumns(1)(board[0][0]);
-    signal player1WinningDiag <== CheckDiagonals(1)(board[0][0]);
+    // 7. Check if there is a winning line for player 1
+    signal player1WinningRow <== CheckRows(1)(updatedBoard[0][0]);
+    signal player1WinningColumn <== CheckColumns(1)(updatedBoard[0][0]);
+    signal player1WinningDiag <== CheckDiagonals(1)(updatedBoard[0][0]);
 
-    // 6. Check if there is a winning line for player 2
-    signal player2WinningRow <== CheckRows(2)(board[0][0]);
-    signal player2WinningColumn <== CheckColumns(2)(board[0][0]);
-    signal player2WinningDiag <== CheckDiagonals(2)(board[0][0]);
+    signal player1WonTemp <== player1WinningRow + player1WinningColumn + player1WinningDiag;
+    signal isZeroPlayer1 <== IsZero()(player1WonTemp); // 1 if no winning line
+    signal player1Won <== (1 - isZeroPlayer1) * (1 - turn);
 
-    // 7. Output the correct root following whether it is the agent or the player's turn
-    signal agentBoardRoot <== turn * updatedRootFromAgentPlay;
-    signal playerBoardRoot <==  (1 - turn) * updatedRootFromPlayerPlay;
+    // 8. Check if there is a winning line for player 2
+    signal player2WinningRow <== CheckRows(2)(updatedBoard[0][0]);
+    signal player2WinningColumn <== CheckColumns(2)(updatedBoard[0][0]);
+    signal player2WinningDiag <== CheckDiagonals(2)(updatedBoard[0][0]);
 
-    // 8. Output whether there is a winner or not
-    signal output step_out <==  agentBoardRoot + playerBoardRoot;
+    signal player2WonTemp <== player2WinningRow + player2WinningColumn + player2WinningDiag;
+    signal isZeroPlayer2 <== IsZero()(player2WonTemp); // 1 if no winning line
+    signal player2Won <== (2 - 2 * isZeroPlayer2) * (turn);
+
+    // 9. Outputs
+    signal output step_out[3];
+
+    step_out[0] <== updatedRoot;
+    step_out[1] <== 1 - turn;
+    step_out[2] <== player1Won + player2Won;
 }

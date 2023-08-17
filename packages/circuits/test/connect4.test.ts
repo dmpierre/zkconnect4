@@ -45,8 +45,7 @@ describe("Test Connect4 circuit", () => {
                 pathElements: boardProof.pathsElements, // proves array provided resolves to board
                 pathIndices: boardProof.pathsIndices, // proves array provided resolves to board
                 ...weights,
-                step_in: playProof.root,
-                turn: board.currentPlayer - 1, // 1 for agent, 0 for player
+                step_in: [playProof.root, board.currentPlayer - 1, 0],
                 ...playProofAgent,
                 agentMoveRowHelper: agentMove.rowHelper,
                 playerPlayedIndex: 39,
@@ -87,9 +86,8 @@ describe("Test Connect4 circuit", () => {
 
         const baseInput = {
             ...weights,
-            turn: correctBoard.currentPlayer - 1, // 1 for agent, 0 for player
             playerPlayedIndex: playerPlayedIdx,
-            step_in: correctBoard.boardTree.root, // root is "fixed", it is passed between each folding step
+            step_in: [correctBoard.boardTree.root, correctBoard.currentPlayer - 1, 0], // root is "fixed", it is passed between each folding step
         }
 
         // Player provides the incorrect board array, valid proofs for incorrect board and valid proofs of play for incorrect board
@@ -128,9 +126,8 @@ describe("Test Connect4 circuit", () => {
 
         const baseInput = {
             ...weights,
-            turn: board.currentPlayer - 1,
             playerPlayedIndex: 39,
-            step_in: board.boardTree.root,
+            step_in: [board.boardTree.root, board.currentPlayer - 1, 0],
             board: boardArray,
             pathElements: boardProof.pathsElements,
             pathIndices: boardProof.pathsIndices,
@@ -144,5 +141,56 @@ describe("Test Connect4 circuit", () => {
         } catch (error: any) {
             expect(error.message).to.contain("IsEmptyLeaf");
         }
+    })
+
+    it("Should have a valid turn logic", async () => {
+
+    })
+
+    it("Should detect when player 1 has won", async () => {
+        const board = new Board();
+        board.play(41)
+        board.play(34)
+        board.play(40)
+        board.play(27)
+        board.play(39)
+        board.play(20)
+
+        const agentMove = agent.getMove(board);
+        assert(agentMove?.prediction != undefined);
+
+        const boardArray = [[board.getBoard()]];
+        const boardProof = board.getBoardProof();
+        const playProof = board.play(agentMove.prediction, false, 2);
+        
+        const playProofAgent = formatProof(playProof, 'agent');
+        const playProofPlayer = formatProof(board.play(38, false, 1), 'player');
+
+        const baseInput = {
+            ...weights,
+            playerPlayedIndex: 38,
+            step_in: [board.boardTree.root, board.currentPlayer - 1, 0],
+            board: boardArray,
+            pathElements: boardProof.pathsElements,
+            pathIndices: boardProof.pathsIndices,
+            ...playProofAgent,
+            ...playProofPlayer,
+            agentMoveRowHelper: agentMove.rowHelper
+        }
+
+        // update board
+        board.play(38) // winning move
+        const updatedBoardProof = board.getBoardProof();
+        const updatedBoardArray = [[board.getBoard()]];
+        const input = {
+            ...baseInput,
+            updatedBoard: updatedBoardArray,
+            updatedBoardPathElements: updatedBoardProof.pathsElements,
+            updatedBoardPathIndices: updatedBoardProof.pathsIndices,
+        }
+
+        const wtns = await connect4Circuit.calculateWitness(input);
+        
+        expect(wtns[2]).to.equal(1n); // 
     })
 })
