@@ -112,3 +112,26 @@ template CheckDiagonals(player) {
     isequal.in[1] <== 0;
     out <== 1 - isequal.out; // signal is 1 when there is a winning diagonal, 0 else
 }
+
+template WinningPlayer() {
+    signal input turn;
+    signal input board[42];
+
+    signal player1WinningRow <== CheckRows(1)(board);
+    signal player1WinningColumn <== CheckColumns(1)(board);
+    signal player1WinningDiag <== CheckDiagonals(1)(board);
+
+    signal player1WonTemp <== player1WinningRow + player1WinningColumn + player1WinningDiag;
+    signal isZeroPlayer1 <== IsZero()(player1WonTemp); // 1 if no winning line
+    signal player1Won <== (1 - isZeroPlayer1) * (1 - turn);
+
+    signal player2WinningRow <== CheckRows(2)(board);
+    signal player2WinningColumn <== CheckColumns(2)(board);
+    signal player2WinningDiag <== CheckDiagonals(2)(board);
+
+    signal player2WonTemp <== player2WinningRow + player2WinningColumn + player2WinningDiag;
+    signal isZeroPlayer2 <== IsZero()(player2WonTemp); // 1 if no winning line
+    signal player2Won <== (2 - 2 * isZeroPlayer2) * (turn);
+
+    signal output out <== player1Won + player2Won;
+}

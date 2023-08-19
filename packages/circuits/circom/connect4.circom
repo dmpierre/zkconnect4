@@ -59,7 +59,7 @@ template Connect4() {
     signal input updatedRootFromPlayerPlay;
     signal input pathElementsUpdatedRootFromPlayer[6];
 
-    // 1. Check board array <--> merkle tree for both current and updated board
+    // 1. Check board array <--> merkle tree for current board
     IsValidBoard()(board[0][0], step_in[0], pathElements, pathIndices);
 
     // 2. Calculate correct updated root following whether it is the agent or the player's turn
@@ -68,8 +68,7 @@ template Connect4() {
     signal playerBoardRoot <==  (1 - turn) * updatedRootFromPlayerPlay;
     signal updatedRoot <== agentBoardRoot + playerBoardRoot;
 
-    // 3. Check updated board array <--> merkle tree
-    // Do this check using the proposed candidate root
+    // 3. Check updated board array <--> merkle tree for the updated board
     IsValidBoard()(updatedBoard[0][0], updatedRoot, updatedBoardPathElements, updatedBoardPathIndices);
 
     // 4. Model inference
@@ -92,28 +91,13 @@ template Connect4() {
                     belowLeafPlayer, pathElementsBelowLeafPlayer, pathIndicesBelowLeafPlayer,
                     updatedRootFromPlayerPlay, pathElementsUpdatedRootFromPlayer);
 
-    // 7. Check if there is a winning line for player 1
-    signal player1WinningRow <== CheckRows(1)(updatedBoard[0][0]);
-    signal player1WinningColumn <== CheckColumns(1)(updatedBoard[0][0]);
-    signal player1WinningDiag <== CheckDiagonals(1)(updatedBoard[0][0]);
+    // 7. Check if there is a winner
+    signal winner <== WinningPlayer()(turn, updatedBoard[0][0]);
 
-    signal player1WonTemp <== player1WinningRow + player1WinningColumn + player1WinningDiag;
-    signal isZeroPlayer1 <== IsZero()(player1WonTemp); // 1 if no winning line
-    signal player1Won <== (1 - isZeroPlayer1) * (1 - turn);
-
-    // 8. Check if there is a winning line for player 2
-    signal player2WinningRow <== CheckRows(2)(updatedBoard[0][0]);
-    signal player2WinningColumn <== CheckColumns(2)(updatedBoard[0][0]);
-    signal player2WinningDiag <== CheckDiagonals(2)(updatedBoard[0][0]);
-
-    signal player2WonTemp <== player2WinningRow + player2WinningColumn + player2WinningDiag;
-    signal isZeroPlayer2 <== IsZero()(player2WonTemp); // 1 if no winning line
-    signal player2Won <== (2 - 2 * isZeroPlayer2) * (turn);
-
-    // 9. Outputs
+    // 8. Outputs
     signal output step_out[3];
 
     step_out[0] <== updatedRoot;
     step_out[1] <== 1 - turn;
-    step_out[2] <== player1Won + player2Won;
+    step_out[2] <== winner;
 }

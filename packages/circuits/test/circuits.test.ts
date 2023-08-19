@@ -13,6 +13,7 @@ let checkColumnsPlayer1: any;
 let checkColumnsPlayer2: any;
 let checkDiagonalsPlayer1: any;
 let checkDiagonalsPlayer2: any;
+let winningPlayer: any;
 
 describe("Test circuit components", () => {
 
@@ -25,6 +26,7 @@ describe("Test circuit components", () => {
         checkColumnsPlayer2 = await wasm(path.join(__dirname, 'circuits', 'test_checkcolumns_player2.circom'));
         checkDiagonalsPlayer1 = await wasm(path.join(__dirname, 'circuits', 'test_checkdiagonals_player1.circom'));
         checkDiagonalsPlayer2 = await wasm(path.join(__dirname, 'circuits', 'test_checkdiagonals_player2.circom'));
+        winningPlayer = await wasm(path.join(__dirname, 'circuits', 'test_winningplayer.circom'));
     });
 
     it("Should accept valid play proofs", async () => {
@@ -183,7 +185,7 @@ describe("Test circuit components", () => {
         const wtns = await checkDiagonalsPlayer1.calculateWitness(input);
         expect(wtns[1]).to.equal(0n);
     });
-    
+
     it("Should accept valid board proofs", async () => {
         // generate proofs for the board state, until board is filled up
         const board = new Board();
@@ -193,5 +195,84 @@ describe("Test circuit components", () => {
             board.play(i);
         }
     })
+
+    it("Should detect when player 1 has won", async () => {
+        const board = new Board();
+        board.play(41)
+        board.play(34)
+        board.play(40)
+        board.play(27)
+        board.play(39)
+        board.play(20)
+        board.play(38)
+
+        const input = {
+            board: board.getBoard(),
+            turn: 0
+        }
+
+        const wtns = await winningPlayer.calculateWitness(input);
+        expect(wtns[1]).to.equal(1n);
+    })
+
+    it("Should detect when player 2 has won", async () => {
+        const board = new Board();
+        board.currentPlayer = 2;
+        board.play(41)
+        board.play(34)
+        board.play(40)
+        board.play(27)
+        board.play(39)
+        board.play(20)
+        board.play(38)
+
+        const input = {
+            board: board.getBoard(),
+            turn: 1
+        }
+
+        const wtns = await winningPlayer.calculateWitness(input);
+        expect(wtns[1]).to.equal(2n);
+    })
+
+    it("Should detect a valid winning player based on turn when both have winning lines", async () => {
+        let board = new Board();
+        board.play(41)
+        board.play(34)
+        board.play(40)
+        board.play(27)
+        board.play(39)
+        board.play(20)
+        board.play(38)
+        board.play(13)
+
+        let input = {
+            board: board.getBoard(),
+            turn: 0
+        }
+
+        let wtns = await winningPlayer.calculateWitness(input);
+        expect(wtns[1]).to.equal(1n); 
+
+        board = new Board();
+        board.currentPlayer = 2;
+        board.play(41)
+        board.play(34)
+        board.play(40)
+        board.play(27)
+        board.play(39)
+        board.play(20)
+        board.play(38)
+        board.play(13)
+
+        input = {
+            board: board.getBoard(),
+            turn: 1
+        }
+
+        wtns = await winningPlayer.calculateWitness(input);
+        expect(wtns[1]).to.equal(2n);
+
+    }) 
 
 });

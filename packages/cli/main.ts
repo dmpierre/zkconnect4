@@ -2,6 +2,7 @@ import { Board, askMove, formatProof } from "../lib/utils/utils";
 import fs from "fs";
 import { art, loadConnect4 } from "./conf";
 import assert from "assert";
+import { aggregate } from "./aggregate";
 
 export const main = async () => {
     const board = new Board();
@@ -12,6 +13,7 @@ export const main = async () => {
     const { agent, weights, connect4Circuit } = await loadConnect4();
     message = '';
     let moves = 0;
+    let winner = 0;
     while (true) {
         console.clear();
         console.log(art);
@@ -31,29 +33,44 @@ export const main = async () => {
             const playProofPlayer = formatProof(board.play(playerMove, false, 1), 'player');
             const playProofAgent = formatProof(board.play(agentMove.prediction, false, 2), 'agent');
             const boardArray = [[board.getBoard()]];
-            const input = {
-                board: boardArray,
+            const boardProof = board.getBoardProof();
+            const baseInput = {
                 ...weights,
-                step_in: board.boardTree.root,
-                turn: board.currentPlayer - 1,
-                ...playProofPlayer,
-                agentMoveRowHelper: agentMove.rowHelper,
                 playerPlayedIndex: playerMove,
-                ...playProofAgent
+                step_in: [board.boardTree.root, board.currentPlayer - 1, winner],
+                board: boardArray,
+                pathElements: boardProof.pathsElements,
+                pathIndices: boardProof.pathsIndices,
+                ...playProofPlayer,
+                ...playProofAgent,
+                agentMoveRowHelper: agentMove.rowHelper,
             }
+
             const move = board.currentPlayer == 1 ? playerMove : agentMove.prediction;
+            board.play(move);
+            const updatedBoardProof = board.getBoardProof();
+            const updatedBoardArray = [[board.getBoard()]];
+            const input = {
+                ...baseInput,
+                updatedBoard: updatedBoardArray,
+                updatedBoardPathElements: updatedBoardProof.pathsElements,
+                updatedBoardPathIndices: updatedBoardProof.pathsIndices,
+            }
             const wtns = await connect4Circuit.calculateWitness(input);
             fs.writeFileSync(
                 `out/move_${moves}.json`, JSON.stringify(input)
             )
-            board.play(move);
             assert(wtns[1] == board.boardTree.root, "Root is not correct");
+            winner = Number(wtns[3]);
             message = '';
             moves++;
+            if (winner != 0) {
+                break;
+            }
         } catch (e: any) {
             message = e.message;
         }
     }
 }
 
-main().then(() => { })
+main().then(() => aggregate());
