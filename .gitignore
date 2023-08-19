@@ -37,3 +37,6 @@ yarn-error.log*
 
 # misc
 copy_model.sh
+
+# rust
+target
