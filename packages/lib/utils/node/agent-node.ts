@@ -1,4 +1,4 @@
-import { Board } from "./utils";
+import { Board } from "../board";
 import * as tf from '@tensorflow/tfjs-node';
 import { Rank, Tensor } from '@tensorflow/tfjs-node';
 

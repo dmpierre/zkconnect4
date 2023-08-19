@@ -1,4 +1,4 @@
-import { Board } from "../../lib/utils/utils";
+import { Board } from "../../lib";
 
 //@ts-expect-error
 import { wasm } from 'circom_tester';

@@ -40,3 +40,6 @@ copy_model.sh
 
 # rust
 target
+
+# ts
+dist

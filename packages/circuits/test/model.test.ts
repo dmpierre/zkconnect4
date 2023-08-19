@@ -1,11 +1,12 @@
 //@ts-expect-error
 import { wasm } from 'circom_tester';
 import path from 'path';
-import { Board, loadJSON } from "../../lib/utils/utils";
+import { loadJSON } from "../../lib/utils/utils";
+import { Board } from "../../lib";
 import * as tf from '@tensorflow/tfjs-node';
 import { Rank, Tensor } from '@tensorflow/tfjs-node';
 import { expect } from 'chai';
-import { AgentNode } from '../../lib/utils/agent-node';
+import { AgentNode } from '../../lib/utils/node/agent-node';
 
 let modelCircuit: any;
 let model: tf.LayersModel;

@@ -1,4 +1,4 @@
-import { AgentNode } from "../utils/agent-node";
+import { AgentNode } from "../utils/node/agent-node";
 import path from 'path';
 import { Board } from "../utils/utils";
 

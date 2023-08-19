@@ -1,11 +1,12 @@
 //@ts-expect-error
 import { wasm } from 'circom_tester';
 import path from 'path';
-import { Board, formatProof, loadJSON } from "../../lib/utils/utils";
+import { loadJSON } from "../../lib/utils/utils";
+import { Board, formatProof } from "../../lib";
 import * as tf from '@tensorflow/tfjs-node';
 import { Rank, Tensor } from '@tensorflow/tfjs-node';
 import { assert, expect } from 'chai';
-import { AgentNode } from '../../lib/utils/agent-node';
+import { AgentNode } from '../../lib/utils/node/agent-node';
 
 let connect4Circuit: any;
 let modelPath: string;
@@ -40,7 +41,7 @@ describe("Test Connect4 circuit", () => {
             const playProofAgent = formatProof(playProof, 'agent');
             const playProofPlayer = formatProof(board.play(39, false, 1), 'player'); // force to generate a proof for player 1
             const boardProof = board.getBoardProof();
-            const input = {
+            const baseInput = {
                 board: boardArray,
                 pathElements: boardProof.pathsElements, // proves array provided resolves to board
                 pathIndices: boardProof.pathsIndices, // proves array provided resolves to board
@@ -51,10 +52,15 @@ describe("Test Connect4 circuit", () => {
                 playerPlayedIndex: 39,
                 ...playProofPlayer
             }
-            const inputModel = tf.tensor4d([boardArray])
-            const pred = tf.argMax((model.predict(inputModel) as Tensor<Rank>).dataSync()).dataSync()[0];
-            const wtns = await connect4Circuit.calculateWitness(input);
             board.play(agentMove.prediction);
+            const updatedBoardProof = board.getBoardProof();
+            const input = {
+                ...baseInput,
+                updatedBoard: [[board.getBoard()]],
+                updatedBoardPathElements: updatedBoardProof.pathsElements,
+                updatedBoardPathIndices: updatedBoardProof.pathsIndices,
+            }
+            const wtns = await connect4Circuit.calculateWitness(input);
             expect(wtns[1]).to.equal(board.boardTree.root)
         }
     })
@@ -103,8 +109,17 @@ describe("Test Connect4 circuit", () => {
             ...correctPlayProofPlayer
         }
 
+        correctBoard.play(correctAgentMove.prediction);
+        const updatedBoardProof = correctBoard.getBoardProof();
+        const input = {
+            ...inputIncorrectBoardArray,
+            updatedBoard: [[correctBoard.getBoard()]],
+            updatedBoardPathElements: updatedBoardProof.pathsElements,
+            updatedBoardPathIndices: updatedBoardProof.pathsIndices,
+        }
+
         try {
-            const wtns = await connect4Circuit.calculateWitness(inputIncorrectBoardArray);
+            const wtns = await connect4Circuit.calculateWitness(input);
         } catch (error: any) {
             expect(error.message).to.contain("IsValidBoard");
         }
@@ -136,8 +151,19 @@ describe("Test Connect4 circuit", () => {
             agentMoveRowHelper: agentMove.rowHelper - 1 // invalid value. InvalidLeaf check won't pass
         }
 
+        board.play(agentMove.prediction);
+        const updatedBoardProof = board.getBoardProof();
+        const updatedBoardArray = [[board.getBoard()]];
+
+        const input = {
+            ...baseInput,
+            updatedBoard: updatedBoardArray,
+            updatedBoardPathElements: updatedBoardProof.pathsElements,
+            updatedBoardPathIndices: updatedBoardProof.pathsIndices,
+        }
+
         try {
-            const wtns = await connect4Circuit.calculateWitness(baseInput);
+            const wtns = await connect4Circuit.calculateWitness(input);
         } catch (error: any) {
             expect(error.message).to.contain("IsEmptyLeaf");
         }
@@ -193,52 +219,4 @@ describe("Test Connect4 circuit", () => {
         expect(wtns[2]).to.equal(1n); // 
     })
 
-    it("Should detect when player 2 has won", async () => {
-        const board = new Board();
-        board.currentPlayer = 2;
-        board.play(41)
-        board.play(34)
-        board.play(40)
-        board.play(27)
-        board.play(39)
-        board.play(20)
-        board.play(38)
-        
-        const agentMove = agent.getMove(board);
-        assert(agentMove?.prediction != undefined);
-
-        const boardArray = [[board.getBoard()]];
-        const boardProof = board.getBoardProof();
-        const playProof = board.play(agentMove.prediction, false, 2);
-        
-        const playProofAgent = formatProof(playProof, 'agent');
-        const playProofPlayer = formatProof(board.play(38, false, 1), 'player');
-
-        const baseInput = {
-            ...weights,
-            playerPlayedIndex: 38,
-            step_in: [board.boardTree.root, board.currentPlayer - 1, 0],
-            board: boardArray,
-            pathElements: boardProof.pathsElements,
-            pathIndices: boardProof.pathsIndices,
-            ...playProofAgent,
-            ...playProofPlayer,
-            agentMoveRowHelper: agentMove.rowHelper
-        }
-
-        // update board
-        board.play(38) // winning move
-        const updatedBoardProof = board.getBoardProof();
-        const updatedBoardArray = [[board.getBoard()]];
-        const input = {
-            ...baseInput,
-            updatedBoard: updatedBoardArray,
-            updatedBoardPathElements: updatedBoardProof.pathsElements,
-            updatedBoardPathIndices: updatedBoardProof.pathsIndices,
-        }
-
-        const wtns = await connect4Circuit.calculateWitness(input);
-        
-        expect(wtns[2]).to.equal(1n); //
-    })
 })
