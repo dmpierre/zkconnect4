@@ -1,17 +1,20 @@
 "use client";
 
-import { Button, Header } from "ui";
+import { BoardDisplay } from "ui";
 import { Board } from "lib";
 import { useState } from "react";
-import './globals.css';
+import 'ui/styles.css';
 
 export default function Page() {
   const [board, setboard] = useState(new Board());
+  const [movecounts, setmovecounts] = useState(0);
 
+  
   return (
     <>
-      <Header text="Web" />
-      <Button />
+      <div className="flex justify-center">
+        <BoardDisplay movecounts={movecounts} setmovecounts={setmovecounts} setboard={setboard} board={board} />
+      </div>
     </>
   );
 }

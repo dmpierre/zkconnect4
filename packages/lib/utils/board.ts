@@ -23,7 +23,7 @@ export class Board {
         return this.boardTree;
     }
 
-    isValidMove(playIdx: number, move: PlayerOne | PlayerTwo | Empty,) {
+    isValidMove(playIdx: number, move: PlayerOne | PlayerTwo | Empty, throwErr = true) {
         if (move == 0) {
             throw new Error("Move can not be empty");
         }
@@ -32,12 +32,18 @@ export class Board {
 
         // check in the tree that cell below is not empty
         if (this.getCellHash(belowIdx) == this.hashCell([belowIdx, 0])) {
-            throw new Error("Cell below is empty in tree.");
+            if (throwErr) {
+                throw new Error("Cell below is empty in tree.");
+            }
+            else return false;
         }
 
         // check in the tree that current cell is empty
         if (this.getCellHash(playIdx) != this.hashCell([playIdx, 0])) {
-            throw new Error("Cell is not empty in tree.");
+            if (throwErr) {
+                throw new Error("Cell is not empty in tree.");
+            }
+            else return false;
         }
 
         // check on board that cell is empty
@@ -45,13 +51,19 @@ export class Board {
             if (playIdx < 35) {
                 // check that cell below is not empty when not playing bottom line
                 if (this.board[belowIdx][1] == 0) {
-                    throw new Error("Cell below is empty in board.");
+                    if (throwErr) {
+                        throw new Error("Cell below is empty in board.");
+                    }
+                    else return false;
                 }
                 return true;
             }
             return true;
         } else {
-            throw new Error("Cell is not empty in board.");
+            if (throwErr) {
+                throw new Error("Cell is not empty in board.");
+            }
+            else return false;
         }
 
     }
@@ -116,16 +128,22 @@ export class Board {
         }
     }
 
+    moveToStr(move: number) {
+        if (move == 0) {
+            return ".";
+        } else if (move == 1) {
+            return "X";
+        } else {
+            return "O";
+        }
+    }
+
     printBoard() {
+        
         const boardStr = this.board.map((cell) => {
-            if (cell[1] == 0) {
-                return ".";
-            } else if (cell[1] == 1) {
-                return "X";
-            } else {
-                return "O";
-            }
+            return this.moveToStr(cell[1]);
         });
+
         console.log(boardStr.slice(0, 7).join(" | "));
         console.log(boardStr.slice(7, 14).join(" | "));
         console.log(boardStr.slice(14, 21).join(" | "));
