@@ -1,4 +1,4 @@
-import { AgentNode } from "../lib/utils/agent-node";
+import { AgentNode } from "../lib/utils/node/agent-node";
 import path from "path";
 //@ts-expect-error
 import { wasm } from 'circom_tester';

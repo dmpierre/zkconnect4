@@ -20,13 +20,14 @@
     "typescript": "^4.5.2"
   },
   "dependencies": {
-    "circomlib-ml": "1.4.4",
+    "@ethereumjs/util": "8.0.5",
     "@personaelabs/spartan-ecdsa": "^2.1.4",
     "@tensorflow/tfjs": "^4.10.0",
     "@tensorflow/tfjs-node": "^4.10.0",
     "@zk-kit/incremental-merkle-tree": "^1.1.0",
     "circom_tester": "^0.0.19",
     "circomlib": "^2.0.5",
+    "circomlib-ml": "1.4.4",
     "elliptic": "^6.5.4"
   }
 }

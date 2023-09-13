@@ -1,10 +1,13 @@
-import { Board, askMove, formatProof } from "../lib/utils/utils";
+import { askMove } from "../lib/utils/utils";
+import { Board, formatProof } from "../lib";
 import fs from "fs";
 import { art, loadConnect4 } from "./conf";
 import assert from "assert";
 import { aggregate } from "./aggregate";
 
 export const main = async () => {
+    // cleaning out folder
+    fs.readdirSync('./out/').forEach(f => fs.rmSync(`./out/${f}`));
     const board = new Board();
     console.clear();
     let message = 'Loading board...';
