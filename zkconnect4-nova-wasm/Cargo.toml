@@ -1,0 +1,31 @@
+[package]
+name = "zkconnect4-nova-wasm"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+nova-scotia = { git = "https://github.com/nalinbhardwaj/Nova-Scotia.git" }
+nova-snark = "0.23.0"
+serde = { version = "1.0.183", features = ["derive"] }
+serde-wasm-bindgen = "0.4"
+serde_json = "1.0.105"
+zkconnect4-nova-lib = { path = "../zkconnect4-nova-lib/" }
+reqwest = "0.11.20"
+
+[target.'cfg(target_family = "wasm")'.dependencies]
+getrandom = { version = "0.2", features = ["js"]}
+wasm-bindgen = { version = "0.2.81", features = ["serde-serialize"]}
+console_error_panic_hook = "0.1.7"
+rayon = "1.5"
+wasm-bindgen-rayon = { version = "1.0"}
+web-sys = { version = "0.3", features = ["Request", "Window", "Response"] }
+wasm-bindgen-futures = "0.4"
+js-sys = "0.3"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3.37"
