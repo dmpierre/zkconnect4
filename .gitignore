@@ -43,3 +43,11 @@ target
 
 # ts
 dist
+
+# public parameters et al.
+pp_zkconnect4.json
+*aggregate*.json
+*.r1cs
+*.wasm
+
+apps/web/public/connect4_*
