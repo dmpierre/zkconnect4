@@ -8,5 +8,8 @@ edition = "2021"
 [dependencies]
 nova-scotia = "0.5.0"
 nova-snark = "0.23.0"
+reqwest = "0.11.20"
 serde = "1.0.183"
 serde_json = "1.0.105"
+tokio = { version = "1.32.0", features = ["full"] }
+zkconnect4-nova-lib = { path = "../zkconnect4-nova-lib/" }
