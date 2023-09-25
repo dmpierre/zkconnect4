@@ -10,7 +10,7 @@ const downloadChunk = async (multithread: typeof import("../../../packages/zkcon
 async function download_pp_chunks() {
     const multiThread = await import("zkconnect4-nova-wasm");
     await multiThread.default();
-    await multiThread.initThreadPool(navigator.hardwareConcurrency);
+    await multiThread.initThreadPool(navigator.hardwareConcurrency - 1);
     const start = performance.now();
     const downloads = new Array(11);
     for (let i = 0; i < N_CHUNKS; i++) {
@@ -26,9 +26,10 @@ async function download_pp_chunks() {
 }
 
 async function generateProof(chunks: string[], game: string) {
+    console.log(game);
     const multiThread = await import("zkconnect4-nova-wasm");
     await multiThread.default();
-    await multiThread.initThreadPool(navigator.hardwareConcurrency);
+    await multiThread.initThreadPool(navigator.hardwareConcurrency - 1);
     const start = performance.now();
     const data = await multiThread.generate_proof(chunks, game);
     const end = performance.now();

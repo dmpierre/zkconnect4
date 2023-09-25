@@ -10,6 +10,7 @@
     "wasm:setup": "cp -r ../../zkconnect4-nova-wasm/data/connect4.* ./public/"
   },
   "dependencies": {
+    "@zeit/next-workers": "^1.0.0",
     "axios": "^1.5.0",
     "circomlibjs": "0.1.7",
     "comlink": "^4.4.1",

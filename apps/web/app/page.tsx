@@ -20,7 +20,7 @@ export default function Page() {
   const { agent, agentState, setagentState } = useAgent();
   const [winner, setwinner] = useState<0 | 1 | 2>(0);
   const [gameInputs, setgameInputs] = useState<Game>(initEmptyGame());
-  const { downloadParams, chunks, generateProof } = useWorker(gameInputs); 
+  const { downloadParams, chunks, generateProof } = useWorker(gameInputs);
 
   return (
     <>
