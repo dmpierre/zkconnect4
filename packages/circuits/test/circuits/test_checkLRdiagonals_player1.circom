@@ -4,4 +4,4 @@ include "../../circom/connect4_iswinningline.circom";
 include "../../node_modules/circomlib/circuits/comparators.circom";
 include "../../node_modules/circomlib/circuits/bitify.circom";
 
-component main = CheckDiagonals(1); 
+component main = CheckLRDiagonals(1); 

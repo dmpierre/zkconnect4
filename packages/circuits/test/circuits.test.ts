@@ -11,8 +11,10 @@ let checkRowsPlayer1: any;
 let checkRowsPlayer2: any;
 let checkColumnsPlayer1: any;
 let checkColumnsPlayer2: any;
-let checkDiagonalsPlayer1: any;
-let checkDiagonalsPlayer2: any;
+let checkRLDiagonalsPlayer1: any;
+let checkLRDiagonalsPlayer1: any;
+let checkRLDiagonalsPlayer2: any;
+let checkLRDiagonalsPlayer2: any;
 let winningPlayer: any;
 
 describe("Test circuit components", () => {
@@ -24,8 +26,10 @@ describe("Test circuit components", () => {
         checkRowsPlayer2 = await wasm(path.join(__dirname, 'circuits', 'test_checkrows_player2.circom'));
         checkColumnsPlayer1 = await wasm(path.join(__dirname, 'circuits', 'test_checkcolumns_player1.circom'));
         checkColumnsPlayer2 = await wasm(path.join(__dirname, 'circuits', 'test_checkcolumns_player2.circom'));
-        checkDiagonalsPlayer1 = await wasm(path.join(__dirname, 'circuits', 'test_checkdiagonals_player1.circom'));
-        checkDiagonalsPlayer2 = await wasm(path.join(__dirname, 'circuits', 'test_checkdiagonals_player2.circom'));
+        checkRLDiagonalsPlayer1 = await wasm(path.join(__dirname, 'circuits', 'test_checkRLdiagonals_player1.circom'));
+        checkLRDiagonalsPlayer1 = await wasm(path.join(__dirname, 'circuits', 'test_checkLRdiagonals_player1.circom'));
+        checkRLDiagonalsPlayer2 = await wasm(path.join(__dirname, 'circuits', 'test_checkRLdiagonals_player2.circom'));
+        checkLRDiagonalsPlayer2 = await wasm(path.join(__dirname, 'circuits', 'test_checkLRdiagonals_player2.circom'));
         winningPlayer = await wasm(path.join(__dirname, 'circuits', 'test_winningplayer.circom'));
     });
 
@@ -38,46 +42,51 @@ describe("Test circuit components", () => {
         }
     })
 
-    it("Should not accept invalid move values", () => { })
-
-    it("Should not accept a move on a non-empty leaf/cell", () => { })
-
-    it("Should not accept a move on a cell with an empty cell below", () => { })
-
-    it("Should detect winning row for player 1", async () => {
-        // generate board with winning row
-        const board = new Board();
-        board.play(35);
-        board.play(28);
-        board.play(36);
-        board.play(21);
-        board.play(37);
-        board.play(14);
-        board.play(38);
-        const input = {
-            board: board.getBoard(),
+    it("Should detect all winning rows for player 1", async () => {
+        const witnesses = [];
+        for (let i = 0; i <= 35; i += 7) {
+            for (let j = i; j < 4; j++) {
+                const board = new Board();
+                board.playNoCheck(i + j, 1);
+                board.playNoCheck(i + j + 1, 1);
+                board.playNoCheck(i + j + 2, 1);
+                board.playNoCheck(i + j + 3, 1);
+                const input = {
+                    board: board.getBoard(),
+                }
+                const wtns = checkRowsPlayer1.calculateWitness(input);
+                witnesses.push(wtns);
+            }
         }
-        const wtns = await checkRowsPlayer1.calculateWitness(input);
-        expect(wtns[1]).to.equal(1n);
-    })
+        
+        let results = await Promise.all(witnesses);
+        results.map((wtns) => {
+            expect(wtns[1]).to.equal(1n);
+        });
+    });
 
-    it("Should detect winning row for player 2", async () => {
-        // generate board with winning row
-        const board = new Board();
-        board.play(35);
-        board.play(36);
-        board.play(28);
-        board.play(37);
-        board.play(21);
-        board.play(38);
-        board.play(29);
-        board.play(39);
-        const input = {
-            board: board.getBoard(),
+    it("Should detect all winning rows for player 2", async () => {
+        const witnesses = [];
+        for (let i = 0; i <= 35; i += 7) {
+            for (let j = i; j < 4; j++) {
+                const board = new Board();
+                board.playNoCheck(i + j, 2);
+                board.playNoCheck(i + j + 1, 2);
+                board.playNoCheck(i + j + 2, 2);
+                board.playNoCheck(i + j + 3, 2);
+                const input = {
+                    board: board.getBoard(),
+                }
+                const wtns = checkRowsPlayer2.calculateWitness(input);
+                witnesses.push(wtns);
+            }
         }
-        const wtns = await checkRowsPlayer2.calculateWitness(input);
-        expect(wtns[1]).to.equal(1n);
-    })
+        
+        let results = await Promise.all(witnesses);
+        results.map((wtns) => {
+            expect(wtns[1]).to.equal(1n);
+        });
+    });
 
     it("Should not detect a winning row when board has no winning row", async () => {
         // start from fresh board
@@ -89,44 +98,51 @@ describe("Test circuit components", () => {
         expect(wtns[1]).to.equal(0n);
     })
 
-    it("Should detect winning column for player 1", async () => {
-        // generate board with winning column
-        const board = new Board();
-        board.play(35);
-        board.play(36);
-        board.play(28);
-        board.play(37);
-        board.play(21);
-        board.play(38);
-        board.play(14);
-        const input = {
-            board: board.getBoard(),
+    it("Should detect all winning columns for player 1", async () => {
+        const witnesses = [];
+        for (let i = 0; i < 7; i++) {
+            for (let j = i; j <= i + 14; j += 7) {
+                const board = new Board();
+                board.playNoCheck(j, 1);
+                board.playNoCheck(j + 7, 1);
+                board.playNoCheck(j + 14, 1);
+                board.playNoCheck(j + 21, 1);
+                const input = {
+                    board: board.getBoard(),
+                }
+                const wtns = checkColumnsPlayer1.calculateWitness(input);
+                witnesses.push(wtns);
+            }
         }
-        const wtns = await checkColumnsPlayer1.calculateWitness(input);
-
-        expect(wtns[1]).to.equal(1n);
+        let results = await Promise.all(witnesses);
+        results.map((wtns) => {
+            expect(wtns[1]).to.equal(1n);
+        });
     });
 
-    it("Should detect winning column for player 2", async () => {
-        // generate board with winning column
-        const board = new Board();
-        board.play(36);
-        board.play(35);
-        board.play(37);
-        board.play(28);
-        board.play(38);
-        board.play(21);
-        board.play(40);
-        board.play(14);
-        const input = {
-            board: board.getBoard(),
+    it("Should detect all winning columns for player 2", async () => {
+        const witnesses = [];
+        for (let i = 0; i < 7; i++) {
+            for (let j = i; j <= i + 14; j += 7) {
+                const board = new Board();
+                board.playNoCheck(j, 2);
+                board.playNoCheck(j + 7, 2);
+                board.playNoCheck(j + 14, 2);
+                board.playNoCheck(j + 21, 2);
+                const input = {
+                    board: board.getBoard(),
+                }
+                const wtns = checkColumnsPlayer2.calculateWitness(input);
+                witnesses.push(wtns);
+            }
         }
-        const wtns = await checkColumnsPlayer2.calculateWitness(input);
-        expect(wtns[1]).to.equal(1n);
+        let results = await Promise.all(witnesses);
+        results.map((wtns) => {
+            expect(wtns[1]).to.equal(1n);
+        });
     });
 
     it("Should not detect a winning column when board has no winning column", async () => {
-        // start from fresh board
         const board = new Board();
         const input = {
             board: board.getBoard(),
@@ -135,45 +151,96 @@ describe("Test circuit components", () => {
         expect(wtns[1]).to.equal(0n);
     })
 
-    it("Should detect winning diagonal for player 1", async () => {
-        const board = new Board();
-        board.play(35); //
-        board.play(36);
-        board.play(29); //
-        board.play(37);
-        board.play(30);
-        board.play(38);
-        board.play(23); // 
-        board.play(31);
-        board.play(24);
-        board.play(28);
-        board.play(17); //
-        const input = {
-            board: board.getBoard(),
-        }
-        const wtns = await checkDiagonalsPlayer1.calculateWitness(input);
-        expect(wtns[1]).to.equal(1n);
+    it("Should detect all winning diagonals (RL) for player 1", async () => {
+        // RL = right to left
+        const witnesses = [];
+        for (let i = 3; i <= 17; i += 7) {
+            for (let j = 0; j < 4; j++) {
+                const board = new Board();
+                board.playNoCheck(i + j, 1);
+                board.playNoCheck(i + j + 6, 1);
+                board.playNoCheck(i + j + 12, 1); 
+                board.playNoCheck(i + j + 18, 1); 
+                const input = {
+                    board: board.getBoard(),
+                }
+                const wtns = checkRLDiagonalsPlayer1.calculateWitness(input);
+                witnesses.push(wtns);
+            }
+        }    
+        let results = await Promise.all(witnesses);
+        results.map((wtns) => {
+            expect(wtns[1]).to.equal(1n);
+        });
+
     });
 
-    it("Should detect winning diagonal for player 2", async () => {
-        const board = new Board();
-        board.currentPlayer = 2;
-        board.play(35); //
-        board.play(36);
-        board.play(29); //
-        board.play(37);
-        board.play(30);
-        board.play(38);
-        board.play(23); // 
-        board.play(31);
-        board.play(24);
-        board.play(28);
-        board.play(17); //
-        const input = {
-            board: board.getBoard(),
+    it("Should detect all winning diagonals (RL) for player 2", async () => {
+        const witnesses = [];
+        for (let i = 3; i <= 17; i += 7) {
+            for (let j = 0; j < 4; j++) {
+                const board = new Board();
+                board.playNoCheck(i + j, 2);
+                board.playNoCheck(i + j + 6, 2);
+                board.playNoCheck(i + j + 12, 2); 
+                board.playNoCheck(i + j + 18, 2); 
+                const input = {
+                    board: board.getBoard(),
+                }
+                const wtns = checkRLDiagonalsPlayer2.calculateWitness(input);
+                witnesses.push(wtns);
+            }
+        }    
+        let results = await Promise.all(witnesses);
+        results.map((wtns) => {
+            expect(wtns[1]).to.equal(1n);
+        });
+
+    });
+
+    it("Should detect all winning diagonals (LR) for player 1", async () => {
+        const witnesses = [];
+        for (let i = 0; i <= 14; i += 7) {
+            for (let j = 0; j < 4; j++) {
+                const board = new Board();
+                board.playNoCheck(i + j, 1);
+                board.playNoCheck(i + j + 8, 1);
+                board.playNoCheck(i + j + 16, 1); 
+                board.playNoCheck(i + j + 24, 1); 
+                const input = {
+                    board: board.getBoard(),
+                }
+                const wtns = checkLRDiagonalsPlayer1.calculateWitness(input);
+                witnesses.push(wtns);
+            }
         }
-        const wtns = await checkDiagonalsPlayer2.calculateWitness(input);
-        expect(wtns[1]).to.equal(1n);
+        let results = await Promise.all(witnesses);
+        results.map((wtns) => {
+            expect(wtns[1]).to.equal(1n);
+        });
+
+    });
+
+    it("Should detect all winning diagonals (LR) for player 2", async () => {
+        const witnesses = [];
+        for (let i = 0; i <= 14; i += 7) {
+            for (let j = 0; j < 4; j++) {
+                const board = new Board();
+                board.playNoCheck(i + j, 2);
+                board.playNoCheck(i + j + 8, 2);
+                board.playNoCheck(i + j + 16, 2); 
+                board.playNoCheck(i + j + 24, 2); 
+                const input = {
+                    board: board.getBoard(),
+                }
+                const wtns = checkLRDiagonalsPlayer2.calculateWitness(input);
+                witnesses.push(wtns);
+            }
+        }
+        let results = await Promise.all(witnesses);
+        results.map((wtns) => {
+            expect(wtns[1]).to.equal(1n);
+        });
     });
 
     it("Should not detect a winning diagonal when board has no winning diagonal", async () => {
@@ -182,7 +249,7 @@ describe("Test circuit components", () => {
         const input = {
             board: board.getBoard(),
         }
-        const wtns = await checkDiagonalsPlayer1.calculateWitness(input);
+        const wtns = await checkRLDiagonalsPlayer1.calculateWitness(input);
         expect(wtns[1]).to.equal(0n);
     });
 

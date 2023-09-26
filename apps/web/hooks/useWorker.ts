@@ -23,6 +23,12 @@ export const useWorker = (game: Game) => {
     };
 
     const generateProof = async () => {
+        if (game.board.length == 0) {
+            throw new Error("No game");
+        }
+        if (chunks.length == 0) {
+            throw new Error("No pp chunks found");
+        }
         const proof = await workerApiRef.current.generateProof(chunks, JSON.stringify(game));
         console.log(proof);
         setproof(proof);

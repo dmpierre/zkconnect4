@@ -77,11 +77,17 @@ export const BoardDisplay: React.FC<BoardDisplayProps> = ({ winner, agentWeights
                 board.board.map((cell, i) => {
                     const color = cell[1] === 0 ? "bg-stone-50" : cell[1] === 1 ? "bg-yellow-200" : "bg-red-200";
                     const hover = cell[1] === 0 ? "hover:bg-stone-200" : "";
-                    const cursor = board.isValidMove(i, board.currentPlayer, false) && agentState == AgentState.LOADED ? "cursor-pointer" : "";
+                    const isValidMove = board.isValidMove(i, board.currentPlayer, false);
+                    const isLoadedAgent = agentState == AgentState.LOADED;
+                    const canPlay = isValidMove && isLoadedAgent;
+                    const cursor = canPlay ? "cursor-pointer" : "";
                     return (
                         <div onClick={
                             () => {
+                                if (!canPlay) return;
                                 // Player plays move
+                                console.log(i);
+                                
                                 let agentMove = inferAgentMove(board, agent, setagentState);
                                 let baseInputPlayer = getBaseInputs(i, winner, board, agentMove, agentWeights);
                                 board.play(i)

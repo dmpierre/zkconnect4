@@ -23,6 +23,61 @@ export class Board {
         return this.boardTree;
     }
 
+    isWinner() {
+        // check horizontal
+        for (let i = 0; i < 42; i += 7) {
+            for (let j = i; j < i + 4; j++) {
+                if (this.board[j][1] != 0) {
+                    if (this.board[j][1] == this.board[j + 1][1] &&
+                        this.board[j][1] == this.board[j + 2][1] &&
+                        this.board[j][1] == this.board[j + 3][1]) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        // check vertical
+        for (let i = 0; i < 7; i++) {
+            for (let j = i; j < i + 21; j += 7) {
+                if (this.board[j][1] != 0) {
+                    if (this.board[j][1] == this.board[j + 7][1] &&
+                        this.board[j][1] == this.board[j + 14][1] &&
+                        this.board[j][1] == this.board[j + 21][1]) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        // check right to left diagonals
+        for (let i = 3; i <= 17; i += 7) {
+            for (let j = 0; j < 4; j++) {
+                if (this.board[i + j][1] != 0) {
+                    if (this.board[i + j][1] == this.board[i + j + 6][1] &&
+                        this.board[i + j][1] == this.board[i + j + 12][1] &&
+                        this.board[i + j][1] == this.board[i + j + 18][1]) {
+                        return true;
+                    }
+                }
+            }
+        }
+        
+        // check left to right diagonals
+        for (let i = 0; i <= 14; i += 7) {
+            for (let j = 0; j < 4; j++) {
+                if (this.board[i + j][1] != 0) {
+                    if (this.board[i + j][1] == this.board[i + j + 8][1] &&
+                        this.board[i + j][1] == this.board[i + j + 16][1] &&
+                        this.board[i + j][1] == this.board[i + j + 24][1]) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+    }
+
     isValidMove(playIdx: number, move: PlayerOne | PlayerTwo | Empty, throwErr = true) {
         if (move == 0) {
             throw new Error("Move can not be empty");
@@ -68,6 +123,32 @@ export class Board {
 
     }
 
+    playNoCheck(playIdx: number, move: PlayerOne | PlayerTwo | Empty) {
+        this.board[playIdx][1] = move;
+    }
+
+    getPlayProof(playIdx: number) {
+        const root = this.boardTree.root;
+        const proof = this.boardTree.createProof(playIdx);
+        const pathElements = proof.siblings.map((sibling) => sibling[0]);
+        const pathIndices = proof.pathIndices;
+        const belowMove = this.getMoveAtIndex(playIdx + 7);
+        const proofBelow = this.boardTree.createProof(playIdx + 7);
+        const pathElementsBelow = proofBelow.siblings.map((sibling) => sibling[0]);
+        const pathIndicesBelow = proofBelow.pathIndices;
+
+        return {
+            root,
+            playedIndex: playIdx,
+            playedMove: this.currentPlayer,
+            pathElementsCurrentLeaf: pathElements,
+            pathIndicesCurrentLeaf: pathIndices,
+            belowLeafMove: belowMove,
+            pathElementsBelowLeaf: pathElementsBelow,
+            pathIndicesBelowLeaf: pathIndicesBelow
+        }
+
+    }
 
     play(playIdx: number, update = true, forcePlayer?: PlayerOne | PlayerTwo | undefined) {
         /**
@@ -80,16 +161,8 @@ export class Board {
 
         if (this.isValidMove(playIdx, player)) {
 
-            // generate proof for play under current root
-            const root = this.boardTree.root;
-            const move = player;
-            const proof = this.boardTree.createProof(playIdx);
-            const pathElements = proof.siblings.map((sibling) => sibling[0]);
-            const pathIndices = proof.pathIndices;
-            const belowMove = this.getMoveAtIndex(playIdx + 7);
-            const proofBelow = this.boardTree.createProof(playIdx + 7);
-            const pathElementsBelow = proofBelow.siblings.map((sibling) => sibling[0]);
-            const pathIndicesBelow = proofBelow.pathIndices;
+            // generate proof for play under current root            
+            const playProof = this.getPlayProof(playIdx);
 
             // update board and current player. updates the board, the tree and player
             this.board[playIdx][1] = player;
@@ -111,14 +184,7 @@ export class Board {
             }
 
             return {
-                root,
-                playedIndex: playIdx,
-                playedMove: move,
-                pathElementsCurrentLeaf: pathElements,
-                pathIndicesCurrentLeaf: pathIndices,
-                belowLeafMove: belowMove,
-                pathElementsBelowLeaf: pathElementsBelow,
-                pathIndicesBelowLeaf: pathIndicesBelow,
+                ...playProof,
                 newRoot,
                 pathElementsRootUpdate
             };
@@ -287,7 +353,8 @@ export const initEmptyGame = () => {
 };
 
 export const updateGameWithTurn = (game: Game, turn: Turn) => {
-    // append turn to game
+    // a turn has been played, we update the game object with the relevant 
+    // turn data 
     Object.entries(turn).forEach(([key, value]) => {    
         game[key as keyof Game].push(value);
     });

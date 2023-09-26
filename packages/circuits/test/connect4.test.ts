@@ -187,7 +187,7 @@ describe("Test Connect4 circuit", () => {
         const boardArray = [[board.getBoard()]];
         const boardProof = board.getBoardProof();
         const playProof = board.play(agentMove.prediction, false, 2);
-        
+
         const playProofAgent = formatProof(playProof, 'agent');
         const playProofPlayer = formatProof(board.play(38, false, 1), 'player');
 
@@ -215,7 +215,7 @@ describe("Test Connect4 circuit", () => {
         }
 
         const wtns = await connect4Circuit.calculateWitness(input);
-        
+
         expect(wtns[2]).to.equal(1n); // 
     })
 

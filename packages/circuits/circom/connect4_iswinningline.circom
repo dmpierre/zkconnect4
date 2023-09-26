@@ -69,6 +69,7 @@ template CheckRows(player) {
 
     for (i = 0; i <= 35; i += 7) {
         for (j = 0; j < 4; j++) {
+            // convoluted, should be changed
             idx = i + j - 3 * k;
             checkRows[idx] = IsWinningLine(player); 
             checkRows[idx].in[0] <== board[i + j + 0];
@@ -85,8 +86,9 @@ template CheckRows(player) {
     out <== 1 - isequal.out; // signal is 1 when there is a winning row, 0 else
 }
 
-template CheckDiagonals(player) {
+template CheckRLDiagonals(player) {
     // check if there is a winning line within the board diagonals
+    // right to left diagonals
     signal input board[42];
     signal output out;
     var i;
@@ -113,23 +115,54 @@ template CheckDiagonals(player) {
     out <== 1 - isequal.out; // signal is 1 when there is a winning diagonal, 0 else
 }
 
+template CheckLRDiagonals(player) {
+    // check if there is a winning line within the board diagonals
+    // left to right diagonals
+    signal input board[42];
+    signal output out;
+    var i;
+    var j;
+    var k = 0;
+    component checkDiags[12];
+    component num = Bits2Num(12); // will be different from 0 if there is a winning line
+    component isequal = IsEqual();
+
+    for (i = 0; i <= 14; i += 7) {
+        for (j = 0; j < 4; j++) {
+            checkDiags[k] = IsWinningLine(player);
+            checkDiags[k].in[0] <== board[i + j];
+            checkDiags[k].in[1] <== board[i + j + 8];
+            checkDiags[k].in[2] <== board[i + j + 16];
+            checkDiags[k].in[3] <== board[i + j + 24];
+            num.in[k] <== checkDiags[k].out;
+            k += 1;
+        }
+    }
+    
+    isequal.in[0] <== num.out;
+    isequal.in[1] <== 0;
+    out <== 1 - isequal.out; // signal is 1 when there is a winning diagonal, 0 else
+}
+
 template WinningPlayer() {
     signal input turn;
     signal input board[42];
 
     signal player1WinningRow <== CheckRows(1)(board);
     signal player1WinningColumn <== CheckColumns(1)(board);
-    signal player1WinningDiag <== CheckDiagonals(1)(board);
+    signal player1WinningDiag <== CheckRLDiagonals(1)(board);
+    signal player1WinningLRDiag <== CheckLRDiagonals(1)(board);
 
-    signal player1WonTemp <== player1WinningRow + player1WinningColumn + player1WinningDiag;
+    signal player1WonTemp <== player1WinningRow + player1WinningColumn + player1WinningDiag + player1WinningLRDiag;
     signal isZeroPlayer1 <== IsZero()(player1WonTemp); // 1 if no winning line
     signal player1Won <== (1 - isZeroPlayer1) * (1 - turn);
 
     signal player2WinningRow <== CheckRows(2)(board);
     signal player2WinningColumn <== CheckColumns(2)(board);
-    signal player2WinningDiag <== CheckDiagonals(2)(board);
+    signal player2WinningDiag <== CheckRLDiagonals(2)(board);
+    signal player2WinningLRDiag <== CheckLRDiagonals(2)(board);
 
-    signal player2WonTemp <== player2WinningRow + player2WinningColumn + player2WinningDiag;
+    signal player2WonTemp <== player2WinningRow + player2WinningColumn + player2WinningDiag + player2WinningLRDiag;
     signal isZeroPlayer2 <== IsZero()(player2WonTemp); // 1 if no winning line
     signal player2Won <== (2 - 2 * isZeroPlayer2) * (turn);
 
