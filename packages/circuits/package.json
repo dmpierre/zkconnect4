@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "circom:test": "ts-mocha test/* --timeout 0"
+    "circom:test": "ts-mocha test/* --timeout 0",
+    "circom:compile": "circom circom/main.circom --r1cs --wasm"
   },
   "devDependencies": {
     "@types/chai": "^4.3.5",

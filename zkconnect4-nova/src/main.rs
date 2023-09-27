@@ -4,7 +4,7 @@ use std::{
 };
 
 use nova_scotia::{
-    circom::reader::load_r1cs, create_recursive_circuit, FileLocation, F, S, C1, C2,
+    circom::reader::load_r1cs, create_recursive_circuit, FileLocation, F, S, C1, C2, create_public_params,
 };
 
 use nova_snark::{provider, CompressedSNARK, PublicParams};
@@ -30,14 +30,14 @@ async fn run(circuit_file_path: String, witness_gen_filepath: String) {
     let private_inputs = create_private_inputs(&game, n_turns);
 
     println!("Downloading pp...");
-    let pp_str = get_pp_file("https://d2ovde7k6pdj39.cloudfront.net/pp_zkconnect4.json").await;
-    let pp =
-    serde_json::from_str::<PublicParams<G1, G2, C1<G1>, C2<G2>>>(
-        &pp_str,
-    )
-    .unwrap();
+    let pp = create_public_params(r1cs.clone());
+    // let pp_str = get_pp_file("https://d2ovde7k6pdj39.cloudfront.net/pp_zkconnect4.json").await;
+    // let pp =
+    // serde_json::from_str::<PublicParams<G1, G2, C1<G1>, C2<G2>>>(
+        // &pp_str,
+    // )
+    // .unwrap();
 
-    // let pp: PublicParams<G1, G2, _, _> = serde_json::from_str(&pp_str).unwrap();
     println_pp(&pp);
 
     println!("Creating a RecursiveSNARK...");
@@ -99,7 +99,7 @@ async fn run(circuit_file_path: String, witness_gen_filepath: String) {
 
 #[tokio::main]
 async fn main() {
-    let circuit_filepath = format!("data/connect4.r1cs");
-    let witness_gen_filepath = format!("data/connect4.wasm");
+    let circuit_filepath = format!("data/main.r1cs");
+    let witness_gen_filepath = format!("data/main.wasm");
     run(circuit_filepath, witness_gen_filepath).await;
 }

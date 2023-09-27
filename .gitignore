@@ -49,5 +49,6 @@ pp_zkconnect4.json
 *aggregate*.json
 *.r1cs
 *.wasm
+main_js
 
 apps/web/public/connect4_*
