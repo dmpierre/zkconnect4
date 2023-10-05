@@ -51,4 +51,4 @@ pp_zkconnect4.json
 *.wasm
 main_js
 
-apps/web/public/connect4_*
+apps/web/public/connect4_agent
