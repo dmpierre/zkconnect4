@@ -10,7 +10,7 @@ export enum AgentState {
 }
 
 export const useAgent = () => {
-    const [agent, setagent] = useState(new Agent("/connect4_tfjs/model.json"));
+    const [agent, setagent] = useState(new Agent("/connect4_agent/model.json"));
     const [agentState, setagentState] = useState(AgentState.LOADING);
 
     useEffect(() => {
