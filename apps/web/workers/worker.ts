@@ -26,7 +26,6 @@ async function download_pp_chunks() {
 }
 
 async function generateProof(chunks: string[], game: string) {
-    console.log(game);
     const multiThread = await import("zkconnect4-nova-wasm");
     await multiThread.default();
     await multiThread.initThreadPool(navigator.hardwareConcurrency - 1);
