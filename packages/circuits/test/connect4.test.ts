@@ -4,7 +4,6 @@ import path from 'path';
 import { loadJSON } from "../../lib/utils/utils";
 import { Board, formatProof } from "../../lib";
 import * as tf from '@tensorflow/tfjs-node';
-import { Rank, Tensor } from '@tensorflow/tfjs-node';
 import { assert, expect } from 'chai';
 import { AgentNode } from '../../lib/utils/node/agent-node';
 
@@ -17,9 +16,9 @@ let agent: AgentNode;
 describe("Test Connect4 circuit", () => {
 
     before("build", async () => {
-        modelPath = path.join(__dirname, '..', 'connect4_tfjs', "model.json")
+        modelPath = path.join(__dirname, '..', 'connect4_agent', "model.json")
         model = await tf.loadLayersModel("file://" + modelPath);
-        weights = loadJSON(path.join(__dirname, '..', 'circom', 'connect4_model', 'model.json'))
+        weights = loadJSON(path.join(__dirname, '..', 'connect4_agent', 'weights.json'))
         agent = new AgentNode(modelPath);
         await agent.loadModel();
     });

@@ -1,11 +1,11 @@
 import { AgentNode } from "../utils/node/agent-node";
 import path from 'path';
-import { Board } from "../utils/utils";
+import { Board } from "../index";
 
 describe('Test lib', () => {
     it('Should have a working node agent', async () => {
         const board = new Board();
-        const modelPath = path.join(__dirname, '..', '..', 'circuits', 'connect4_tfjs', "model.json")
+        const modelPath = path.join(__dirname, '..', '..', 'circuits', 'connect4_agent', "model.json")
         const agent = new AgentNode(modelPath);
         await agent.loadModel();
         for (let i = 0; i < 6; i++) {

@@ -17,16 +17,16 @@ describe("Test model", () => {
 
     before("build", async () => {
         modelCircuit = await wasm(path.join(__dirname, 'circuits', 'test_model.circom'));
-        const modelPath = path.join(__dirname, '..', 'connect4_tfjs', "model.json")
+        const modelPath = path.join(__dirname, '..', 'connect4_agent', "model.json")
         model = await tf.loadLayersModel("file://" + modelPath);
-        weights = loadJSON(path.join(__dirname, '..', 'circom', 'connect4_model', 'model.json'))
+        weights = loadJSON(path.join(__dirname, '..', 'connect4_agent', 'weights.json'))
         agent = new AgentNode(modelPath);
         await agent.loadModel();
     });
 
     it("Should have same inference result as the JS model", async () => {
         const board = new Board();
-        for (let i = 41; i >= 41; i--) {
+        for (let i = 41; i >= 0; i--) {
             const agentMove = agent.getMove(board);
             const boardArray = [[board.getBoard()]];
             const input = {

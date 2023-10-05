@@ -5,8 +5,8 @@ import { wasm } from 'circom_tester';
 import { loadJSON } from "../lib/utils/utils";
 
 export const CONF = {
-    modelPath: path.join(__dirname, '..', 'circuits', 'connect4_tfjs', "model.json"),
-    weightsPath: path.join(__dirname, '..', 'circuits', 'circom', 'connect4_model', 'model.json'),
+    modelPath: path.join(__dirname, '..', 'circuits', 'connect4_agent', "model.json"),
+    weightsPath: path.join(__dirname, '..', 'circuits', 'connect4_agent', 'weights.json'),
     circuitPath: path.join(__dirname, '..', 'circuits', 'test', 'circuits', 'test_connect4.circom')
 }
 

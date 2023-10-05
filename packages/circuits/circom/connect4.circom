@@ -1,6 +1,6 @@
 pragma circom 2.1.2;
 
-include "./connect4_model/model.circom";
+include "../connect4_agent/circuit.circom";
 include "./connect4_isvalidboard.circom";
 include "./connect4_update.circom";
 include "./connect4_iswinningline.circom";
