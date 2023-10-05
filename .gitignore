@@ -49,6 +49,7 @@ pp_zkconnect4.json
 *aggregate*.json
 *.r1cs
 *.wasm
+!*_wasm_bg.wasm
 main_js
 
 apps/web/public/connect4_agent

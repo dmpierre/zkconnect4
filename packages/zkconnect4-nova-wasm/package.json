@@ -1,0 +1,14 @@
+{
+  "name": "zkconnect4-nova-wasm",
+  "version": "0.1.0",
+  "files": [
+    "zkconnect4_nova_wasm_bg.wasm",
+    "zkconnect4_nova_wasm.js",
+    "zkconnect4_nova_wasm.d.ts"
+  ],
+  "module": "zkconnect4_nova_wasm.js",
+  "types": "zkconnect4_nova_wasm.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
