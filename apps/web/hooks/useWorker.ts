@@ -6,6 +6,9 @@ export const useWorker = (game: Game) => {
 
     const [chunks, setchunks] = useState<string[]>([]);
     const [proof, setproof] = useState("");
+    const [downloading, setdownloading] = useState(false);
+    const [proving, setproving] = useState(false);
+
     const workerApiRef = useRef<Remote<{
         download_pp_chunks: () => Promise<string[]>;
         generateProof: (chunks: string[], game: string) => Promise<string>;
@@ -18,7 +21,9 @@ export const useWorker = (game: Game) => {
     }, [chunks, proof]);
 
     const downloadParams = async () => {
+        setdownloading(true);
         const chunks = await workerApiRef.current.download_pp_chunks();
+        setdownloading(false);
         setchunks(chunks);
     };
 
@@ -29,11 +34,13 @@ export const useWorker = (game: Game) => {
         if (chunks.length == 0) {
             throw new Error("No pp chunks found");
         }
+        setproving(true);
         const proof = await workerApiRef.current.generateProof(chunks, JSON.stringify(game));
+        setproving(false);
         console.log(proof);
         setproof(proof);
     };
 
-    return { downloadParams, chunks, generateProof };
+    return { downloadParams, proving, downloading, chunks, generateProof, proof };
 };
 
