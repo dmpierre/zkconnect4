@@ -1,16 +1,16 @@
-use std::{
-    env::current_dir,
-    time::Instant,
-};
+use std::{env::current_dir, time::Instant};
 
 use nova_scotia::{
-    circom::reader::load_r1cs, create_recursive_circuit, FileLocation, F, S, C1, C2, create_public_params,
+    circom::reader::load_r1cs, create_public_params, create_recursive_circuit, FileLocation, C1,
+    C2, F, S,
 };
 
 use nova_snark::{provider, CompressedSNARK, PublicParams};
-use zkconnect4_nova_lib::{create_private_inputs, get_initial_game_root, println_pp, Game, get_pp_file};
+use zkconnect4_nova_lib::{
+    create_private_inputs, get_initial_game_root, get_pp_file, println_pp, Game,
+};
 
-async fn run(circuit_file_path: String, witness_gen_filepath: String) {
+async fn run(circuit_file_path: String, witness_gen_filepath: String, download_pp: bool) {
     type G1 = provider::bn256_grumpkin::bn256::Point;
     type G2 = provider::bn256_grumpkin::grumpkin::Point;
 
@@ -29,14 +29,17 @@ async fn run(circuit_file_path: String, witness_gen_filepath: String) {
     ];
     let private_inputs = create_private_inputs(&game, n_turns);
 
-    println!("Downloading pp...");
-    let pp = create_public_params(r1cs.clone());
-    // let pp_str = get_pp_file("https://d2ovde7k6pdj39.cloudfront.net/pp_zkconnect4.json").await;
-    // let pp =
-    // serde_json::from_str::<PublicParams<G1, G2, C1<G1>, C2<G2>>>(
-        // &pp_str,
-    // )
-    // .unwrap();
+    let pp_str: String;
+    let pp: PublicParams<G1, G2, C1<G1>, C2<G2>>;
+
+    if download_pp {
+        println!("Downloading pp... You can generate public parameters yourself by providing download_pp=false");
+        pp_str = get_pp_file("https://d2ovde7k6pdj39.cloudfront.net/pp_zkconnect4.json").await;
+        pp = serde_json::from_str::<PublicParams<G1, G2, C1<G1>, C2<G2>>>(&pp_str).unwrap();
+    } else {
+        println!("Generating pp...");
+        pp = create_public_params::<G1, G2>(r1cs.clone());
+    }
 
     println_pp(&pp);
 
@@ -101,5 +104,5 @@ async fn run(circuit_file_path: String, witness_gen_filepath: String) {
 async fn main() {
     let circuit_filepath = format!("data/main.r1cs");
     let witness_gen_filepath = format!("data/main.wasm");
-    run(circuit_filepath, witness_gen_filepath).await;
+    run(circuit_filepath, witness_gen_filepath, true).await;
 }
