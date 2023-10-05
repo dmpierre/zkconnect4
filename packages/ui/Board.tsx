@@ -57,7 +57,7 @@ const inferAgentMove = (board: Board, agent: Agent, setagentState: React.Dispatc
     return agentMove;
 }
 
-const getFinalInput = (baseInput: any, board: Board) =>  {
+const getFinalInput = (baseInput: any, board: Board) => {
     // add the updated board proof to the base input
     const updatedBoardProof = board.getBoardProof()
     const updatedBoardArray = [[board.getBoard()]]
@@ -71,8 +71,10 @@ const getFinalInput = (baseInput: any, board: Board) =>  {
 }
 
 export const BoardDisplay: React.FC<BoardDisplayProps> = ({ winner, agentWeights, board, setboard, setmovecounts, movecounts, agentState, agent, setagentState, setgameInputs, gameInputs }) => {
+    const blur = agentState == AgentState.LOADED ? "" : "blur-sm";
+
     return (
-        <div className="bg-slate-200 border-teal-700 border-2 grid grid-rows-6 px-4 py-4 rounded-lg grid-cols-7 gap-x-10 gap-y-4">
+        <div className={`${blur} bg-slate-200 border-teal-700 border-2 grid grid-rows-6 px-2 py-2 md:px-4 md:py-4 rounded-lg grid-cols-7 gap-x-1 gap-y-1 md:gap-x-5 md:gap-y-2`}>
             {
                 board.board.map((cell, i) => {
                     const color = cell[1] === 0 ? "bg-stone-50" : cell[1] === 1 ? "bg-yellow-200" : "bg-red-200";
@@ -85,27 +87,30 @@ export const BoardDisplay: React.FC<BoardDisplayProps> = ({ winner, agentWeights
                         <div onClick={
                             () => {
                                 if (!canPlay) return;
+                                if (board.isWinner()) return;
+                   
                                 // Player plays move
-                                console.log(i);
-                                
                                 let agentMove = inferAgentMove(board, agent, setagentState);
                                 let baseInputPlayer = getBaseInputs(i, winner, board, agentMove, agentWeights);
                                 board.play(i)
                                 let inputPlayer = getFinalInput(baseInputPlayer, board);
-                                let updatedGame = updateGameWithTurn(gameInputs, inputPlayer)                                
+                                
+                                let updatedGame = updateGameWithTurn(gameInputs, inputPlayer)
 
-                                // Agent plays move
-                                agentMove = inferAgentMove(board, agent, setagentState);
-                                let baseInputAgent = getBaseInputs(agentMove.prediction, winner, board, agentMove, agentWeights);
-                                board.play(agentMove.prediction)
-                                let inputAgent = getFinalInput(baseInputAgent, board);
-                                let updatedGameFinal = updateGameWithTurn(updatedGame, inputAgent)
+                                if (!board.isWinner()) {
+                                    // Agent plays move
+                                    agentMove = inferAgentMove(board, agent, setagentState);
+                                    let baseInputAgent = getBaseInputs(agentMove.prediction, winner, board, agentMove, agentWeights);
+                                    board.play(agentMove.prediction)
+                                    let inputAgent = getFinalInput(baseInputAgent, board);
+                                    updatedGame = updateGameWithTurn(updatedGame, inputAgent)
+                                }
 
-                                setgameInputs(updatedGameFinal)
+                                setgameInputs(updatedGame)
                                 setboard(board)
                                 setmovecounts(movecounts + 1)
                             }
-                        } className={`${color} ${cursor} ${hover} border-teal-700 border-2 rounded-full p-4`} key={i}>
+                        } className={`${color} ${cursor} ${hover} border-teal-700 border-2 rounded-full p-3 md:p-4`} key={i}>
                         </div>
                     )
                 })

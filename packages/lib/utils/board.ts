@@ -31,7 +31,7 @@ export class Board {
                     if (this.board[j][1] == this.board[j + 1][1] &&
                         this.board[j][1] == this.board[j + 2][1] &&
                         this.board[j][1] == this.board[j + 3][1]) {
-                        return true;
+                        return { winner: true, player: this.board[j][1] };
                     }
                 }
             }
@@ -44,7 +44,7 @@ export class Board {
                     if (this.board[j][1] == this.board[j + 7][1] &&
                         this.board[j][1] == this.board[j + 14][1] &&
                         this.board[j][1] == this.board[j + 21][1]) {
-                        return true;
+                        return { winner: true, player: this.board[j][1] };
                     }
                 }
             }
@@ -57,12 +57,12 @@ export class Board {
                     if (this.board[i + j][1] == this.board[i + j + 6][1] &&
                         this.board[i + j][1] == this.board[i + j + 12][1] &&
                         this.board[i + j][1] == this.board[i + j + 18][1]) {
-                        return true;
+                        return { winner: true, player: this.board[i + j][1] };
                     }
                 }
             }
         }
-        
+
         // check left to right diagonals
         for (let i = 0; i <= 14; i += 7) {
             for (let j = 0; j < 4; j++) {
@@ -70,12 +70,12 @@ export class Board {
                     if (this.board[i + j][1] == this.board[i + j + 8][1] &&
                         this.board[i + j][1] == this.board[i + j + 16][1] &&
                         this.board[i + j][1] == this.board[i + j + 24][1]) {
-                        return true;
+                        return { winner: true, player: this.board[i + j][1] };
                     }
                 }
             }
         }
-
+        return false
     }
 
     isValidMove(playIdx: number, move: PlayerOne | PlayerTwo | Empty, throwErr = true) {
@@ -355,7 +355,7 @@ export const initEmptyGame = () => {
 export const updateGameWithTurn = (game: Game, turn: Turn) => {
     // a turn has been played, we update the game object with the relevant 
     // turn data 
-    Object.entries(turn).forEach(([key, value]) => {    
+    Object.entries(turn).forEach(([key, value]) => {
         game[key as keyof Game].push(value);
     });
     return game;
