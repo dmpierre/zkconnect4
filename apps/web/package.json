@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "cp -r ../../packages/circuits/connect4_agent ./public/ && rm ./public/connect4_agent/group1-shard1of1.bin",
+    "postinstall": "cp -r ../../packages/circuits/connect4_agent ./public/",
     "wasm:setup": "cp -r ../../zkconnect4-nova-wasm/data/connect4.* ./public/"
   },
   "dependencies": {
