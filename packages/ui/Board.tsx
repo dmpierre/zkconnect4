@@ -82,8 +82,8 @@ export const BoardDisplay: React.FC<BoardDisplayProps> = ({ winner, agentWeights
                     const isValidMove = board.isValidMove(i, board.currentPlayer, false);
                     const isLoadedAgent = agentState == AgentState.LOADED;
                     const canPlay = isValidMove && isLoadedAgent;
-                    const cursor = canPlay ? "cursor-pointer border-teal-600" : "";
-                    const color = cell[1] === 0 ? "bg-white" : cell[1] === 1 ? "bg-yellow-200 border-teal-800" : "bg-red-200 border-teal-800";
+                    const cursor = canPlay ? "cursor-pointer" : "";
+                    const color = cell[1] === 0 ? "bg-white" : cell[1] === 1 ? "bg-yellow-200" : "bg-red-200";
 
                     return (
                         <div onClick={
@@ -112,7 +112,7 @@ export const BoardDisplay: React.FC<BoardDisplayProps> = ({ winner, agentWeights
                                 setboard(board)
                                 setmovecounts(movecounts + 1)
                             }
-                        } className={`${color} ${cursor} ${hover} border-2 rounded-full p-3 md:p-4`} key={i}>
+                        } className={`${color} ${cursor} ${hover} border-teal-700 border-2 rounded-full p-3 md:p-4`} key={i}>
                         </div>
                     )
                 })
