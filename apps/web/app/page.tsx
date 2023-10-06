@@ -38,9 +38,12 @@ export default function Page() {
           <div className={`text-2xl font-bold md:text-4xl px-4 py-2 text-center ${josephineSlab.className}`}>
             <Header text="zkCONNECT-4"></Header>
           </div>
-          <div className="flex justify-center pb-2">
+          <div className="flex justify-center space-x-2 items-center pb-2">
             <a href="https://github.com/dmpierre/zkconnect4" target="_blank">
               <img src="/github.png" height={30} width={30} />
+            </a>
+            <a className={`${urbanist.className} text-blue-400 underline`} href="https://www.loom.com/share/529239dcf67648c0a4548d6efbf7e000?sid=a2ef3dfc-1461-4d4d-b28d-69a0fff7013c" target="_blank">
+              Video demo
             </a>
           </div>
           <div className={`px-2 py-2 text-center ${urbanist.className}`}>
