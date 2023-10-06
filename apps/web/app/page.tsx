@@ -46,7 +46,7 @@ export default function Page() {
           <div className={`px-2 py-2 text-center ${urbanist.className}`}>
             <Info className="" text={"You will play against an RL connect4 trained agent (~76% win rate against a random playing strategy, not too bad but don't expect too much) and generate a snark to prove your game using nova."}></Info>
             <br />
-            <Info className="text-sm font-bold" text={"It is a resource intensive app that may crash on mobile."}></Info>
+            <Info className="text-xs font-bold" text={"It is a resource intensive app that may crash on mobile."}></Info>
           </div>
           <br />
           <BoardDisplay setgameInputs={setgameInputs} gameInputs={gameInputs} winner={winner}
