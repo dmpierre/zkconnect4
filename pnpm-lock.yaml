@@ -262,8 +262,6 @@ importers:
         specifier: workspace:*
         version: link:../tsconfig
 
-  packages/nova-zkconnect4-pkg: {}
-
   packages/tsconfig: {}
 
   packages/ui:
