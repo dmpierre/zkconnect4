@@ -1,2 +1,0 @@
-export const WEBSITE_ROOT = process.env.NODE_ENV == 'production' ? 'https://d2ovde7k6pdj39.cloudfront.net/' : 'https://d2ovde7k6pdj39.cloudfront.net/';
-export const ctx: Worker = self as unknown as Worker;
