@@ -43,7 +43,10 @@ export default function Page() {
               <img src="/github.png" height={30} width={30} />
             </a>
             <a className={`${urbanist.className} text-blue-400 underline`} href="https://www.loom.com/share/529239dcf67648c0a4548d6efbf7e000?sid=a2ef3dfc-1461-4d4d-b28d-69a0fff7013c" target="_blank">
-              Video demo
+              Video
+            </a>
+            <a className={`${urbanist.className} text-blue-400 underline`} href="https://hackmd.io/lfL00N75R_G4dVVMU_iMsA" target="_blank">
+              Writeup
             </a>
           </div>
           <div className={`px-2 py-2 text-center ${urbanist.className}`}>
